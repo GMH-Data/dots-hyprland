@@ -22,4 +22,7 @@ hl.on("hyprland.start", function ()
 
     -- Cursor
     hl.exec_cmd("hyprctl setcursor Bibata-Modern-Classic 24")
+    
+    -- Btop Dashboard on workspace home
+    hl.exec_cmd("[workspace name:home silent] foot -a btop-dashboard -e btop")
 end)

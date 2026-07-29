@@ -82,6 +82,10 @@ hl.window_rule({match = {float = 0 }, no_shadow = true})
 
 -- ######## Workspace rules ########
 hl.workspace_rule({ workspace = "special:special", gaps_out = 30 })
+hl.workspace_rule({ workspace = "name:home", gaps_out = 0, gaps_in = 0 })
+
+-- Dashboard rules
+hl.window_rule({match = {class = "^(btop-dashboard)$" }, fullscreen = true})
 
 -- ######## Layer rules ########
 hl.layer_rule({ match = { namespace = ".*" }, xray = true})
