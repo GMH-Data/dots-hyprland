@@ -42,7 +42,7 @@ Singleton {
         const ignoredRegexes = ignoredRegexStrings.map(pattern => new RegExp(pattern, "i"));
         // Open windows
         for (const toplevel of ToplevelManager.toplevels.values) {
-            if (ignoredRegexes.some(re => re.test(toplevel.appId))) continue;
+            if (ignoredRegexes.some(re => re.test(toplevel.appId) || re.test(toplevel.title))) continue;
             if (!map.has(toplevel.appId.toLowerCase())) map.set(toplevel.appId.toLowerCase(), ({
                 pinned: false,
                 toplevels: []

@@ -331,7 +331,7 @@ Singleton {
                 property bool hoverToReveal: true // When false, only reveals on empty workspace
                 property list<string> pinnedApps: [ // IDs of pinned entries
                     "org.kde.dolphin", "kitty",]
-                property list<string> ignoredAppRegexes: ["btop-home", "nvtop-home", "lazydocker-home"]
+                property list<string> ignoredAppRegexes: ["btop-home", "nvtop-home", "lazydocker-home", "btop ~", "nvtop ~", "lazydocker ~"]
             }
 
             property JsonObject interactions: JsonObject {
