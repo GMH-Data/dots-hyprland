@@ -332,11 +332,9 @@ hl.bind("SUPER + ALT + Equal",
     hl.dsp.exec_cmd("notify-send 'Urgent notification' 'Ah hell no' -u critical -a 'Hyprland keybind'")) -- # [hidden]
 
 --##! Session
-hl.bind("SUPER", "U", hl.dsp.exec_cmd("hyprctl dispatch dpms on"), { description = "Monitor: Turn on" })
-
 -- Home Workspace
-hl.bind("SUPER", "grave", hl.dsp.focus({ workspace = "name:home" }), { description = "Workspace: Focus Home" })
-hl.bind("SUPER + SHIFT", "grave", hl.dsp.window.move({ workspace = "name:home" }), { description = "Window: Send to Home" })
+hl.bind("SUPER", "grave", hl.dsp.exec_cmd("hyprctl dispatch workspace name:home"), { description = "Workspace: Focus Home" })
+hl.bind("SUPER + SHIFT", "grave", hl.dsp.exec_cmd("hyprctl dispatch movetoworkspace name:home"), { description = "Window: Send to Home" })
 
 hl.bind("SUPER + L", hl.dsp.exec_cmd("loginctl lock-session"), { description = "Session: Lock" })
 hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("systemctl suspend || loginctl suspend"),
