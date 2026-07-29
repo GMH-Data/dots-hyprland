@@ -14,7 +14,10 @@ NestableObject {
     readonly property bool currentWorkspaceNotFake: activeWindow?.activated ?? false // Active empty workspace = fake. At least, that's how I like to call it.
     readonly property int fakeWorkspace: currentWorkspaceNotFake ? -9999 : activeWorkspace
     readonly property int shownCount: C.Config.options.bar.workspaces.shown
-    readonly property int group: Math.floor((activeWorkspace - 1) / shownCount)
+    readonly property int group: activeWorkspace >= 1 ? Math.floor((activeWorkspace - 1) / shownCount) : 0
+    readonly property int firstWorkspaceInGroup: group * shownCount + 1
+    readonly property int lastWorkspaceInGroup: (group + 1) * shownCount
+    readonly property bool activeWorkspaceInGroup: activeWorkspace >= firstWorkspaceInGroup && activeWorkspace <= lastWorkspaceInGroup
     readonly property var specialWorkspace: liveMonitorData?.specialWorkspace
     readonly property string specialWorkspaceName: specialWorkspace?.name.replace("special:", "") ?? "special"
     readonly property bool specialWorkspaceActive: specialWorkspaceName !== ""

@@ -30,7 +30,7 @@ ButtonMouseArea {
     property real workspaceIconSizeShrinked: workspaceButtonWidth * 0.55
     property real workspaceIconOpacityShrinked: 1
     property real workspaceIconMarginShrinked: -4
-    property int workspaceIndexInGroup: (monitor?.activeWorkspace?.id - 1) % wsModel.shownCount
+    property int workspaceIndexInGroup: wsModel.activeWorkspaceInGroup ? (wsModel.activeWorkspace - 1) % wsModel.shownCount : -1
     property real specialTextSize: workspaceButtonWidth * 0.5
 
     Layout.alignment: vertical ? Qt.AlignHCenter : Qt.AlignVCenter
@@ -163,6 +163,7 @@ ButtonMouseArea {
             z: 2
 
             index: root.workspaceIndexInGroup
+            visible: index !== -1
         }
 
         /////////////////// Hover ///////////////////
