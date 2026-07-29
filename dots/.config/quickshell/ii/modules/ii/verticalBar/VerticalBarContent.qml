@@ -126,7 +126,7 @@ Item { // Bar content region
                 }
                 
                 onPressed: {
-                    Hyprland.dispatch("workspace name:home");
+                    Hyprland.dispatch("hl.dsp.focus({workspace = 'name:home'})");
                 }
 
                 MaterialSymbol {
