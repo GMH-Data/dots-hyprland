@@ -178,7 +178,14 @@ hl.bind("ALT + F4",
             "notify-send \"Wrong close keybind\" \"Super+Q to close. Use Alt+F4 for Windows VMs\" -a Hyprland")
     end,
     { non_consuming = true })
-hl.bind("SUPER + Q", hl.dsp.window.close(), { description = "Window: Close" })
+hl.bind("SUPER + Q", function()
+    local curr_ws = hl.get_active_workspace().id
+    if curr_ws >= 1 then
+        hl.dispatch(hl.dsp.window.close())
+    else
+        hl.exec_cmd("notify-send -a Hyprland 'Dashboard' 'Không thể đóng các widget giám sát!'")
+    end
+end, { description = "Window: Close" })
 hl.bind("SUPER + SHIFT + ALT + Q", hl.dsp.exec_cmd("hyprctl kill"), { description = "Window: Forcefully zap a window" })
 
 --# Window split ratio

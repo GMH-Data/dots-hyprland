@@ -88,6 +88,7 @@ hl.workspace_rule({ workspace = "name:home", gaps_out = 0, gaps_in = 0 })
 hl.window_rule({match = {class = "^(btop-home)$" }, workspace = "name:home", tile = true, border_size = 0, no_shadow = true})
 hl.window_rule({match = {class = "^(nvtop-home)$" }, workspace = "name:home", tile = true, border_size = 0, no_shadow = true})
 hl.window_rule({match = {class = "^(lazydocker-home)$" }, workspace = "name:home", tile = true, border_size = 0, no_shadow = true})
+hl.window_rule({match = {class = "^(?!.*-home).*$", workspace = "name:home"}, workspace = "1"})
 
 -- ######## Layer rules ########
 hl.layer_rule({ match = { namespace = ".*" }, xray = true})
