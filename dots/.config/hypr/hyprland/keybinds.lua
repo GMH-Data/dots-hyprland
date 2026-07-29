@@ -333,8 +333,8 @@ hl.bind("SUPER + ALT + Equal",
 
 --##! Session
 -- Home Workspace
-hl.bind("SUPER", "grave", function() os.execute("hyprctl dispatch workspace name:home &") end, { description = "Workspace: Focus Home" })
-hl.bind("SUPER + SHIFT", "grave", function() os.execute("hyprctl dispatch movetoworkspace name:home &") end, { description = "Window: Send to Home" })
+hl.bind("SUPER + grave", function() os.execute("hyprctl dispatch workspace name:home &") end, { description = "Workspace: Focus Home" })
+hl.bind("SUPER + SHIFT + grave", function() os.execute("hyprctl dispatch movetoworkspace name:home &") end, { description = "Window: Send to Home" })
 
 hl.bind("SUPER + L", hl.dsp.exec_cmd("loginctl lock-session"), { description = "Session: Lock" })
 hl.bind("SUPER + SHIFT + L", hl.dsp.exec_cmd("systemctl suspend || loginctl suspend"),
