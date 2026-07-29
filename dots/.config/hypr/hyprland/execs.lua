@@ -24,7 +24,7 @@ hl.on("hyprland.start", function ()
     hl.exec_cmd("hyprctl setcursor Bibata-Modern-Classic 24")
     
     -- Dashboard on workspace home
-    hl.exec_cmd("kitty --title 'btop ~' -e btop")
-    hl.exec_cmd("kitty --title 'nvtop ~' -e nvtop")
-    hl.exec_cmd("kitty --title 'lazydocker ~' -e lazydocker")
+    hl.exec_cmd("[workspace name:home silent] kitty --class btop-home --title 'btop ~' -e btop")
+    hl.exec_cmd("[workspace name:home silent] kitty --class nvtop-home --title 'nvtop ~' -e nvtop")
+    hl.exec_cmd("[workspace name:home silent] kitty --class lazydocker-home --title 'lazydocker ~' -e lazydocker")
 end)
