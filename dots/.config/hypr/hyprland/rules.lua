@@ -85,9 +85,9 @@ hl.workspace_rule({ workspace = "special:special", gaps_out = 30 })
 hl.workspace_rule({ workspace = "name:home", gaps_out = 0, gaps_in = 0 })
 
 -- Dashboard rules
-hl.window_rule({match = {class = "^(btop-home)$" }, workspace = "name:home", tile = true, nofocus = true, noborder = true, noshadow = true})
-hl.window_rule({match = {class = "^(nvtop-home)$" }, workspace = "name:home", tile = true, nofocus = true, noborder = true, noshadow = true})
-hl.window_rule({match = {class = "^(lazydocker-home)$" }, workspace = "name:home", tile = true, nofocus = true, noborder = true, noshadow = true})
+hl.window_rule({match = {class = "^(btop-home)$" }, workspace = "name:home", tile = true, no_focus = true, border_size = 0, no_shadow = true})
+hl.window_rule({match = {class = "^(nvtop-home)$" }, workspace = "name:home", tile = true, no_focus = true, border_size = 0, no_shadow = true})
+hl.window_rule({match = {class = "^(lazydocker-home)$" }, workspace = "name:home", tile = true, no_focus = true, border_size = 0, no_shadow = true})
 
 -- ######## Layer rules ########
 hl.layer_rule({ match = { namespace = ".*" }, xray = true})
