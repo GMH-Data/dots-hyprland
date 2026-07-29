@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Bluetooth
 import Quickshell.Services.UPower
 import qs
@@ -109,6 +110,38 @@ Item { // Bar content region
             id: middleCenterGroup
             vertical: true
             padding: 6
+
+            RippleButton {
+                id: homeButton
+                Layout.alignment: Qt.AlignHCenter
+                implicitHeight: 32
+                implicitWidth: 32
+                buttonRadius: Appearance.rounding.full
+                colBackground: toggled ? Appearance.colors.colSecondaryContainer : hovered ? Appearance.colors.colLayer1Hover : "transparent"
+                colBackgroundHover: Appearance.colors.colLayer1Hover
+                colRipple: Appearance.colors.colLayer1Active
+                toggled: {
+                    var monitor = Hyprland.monitorFor(root.QsWindow.window?.screen);
+                    return monitor?.activeWorkspace?.name === "home";
+                }
+                
+                onPressed: {
+                    Hyprland.dispatch("workspace name:home");
+                }
+
+                MaterialSymbol {
+                    anchors.centerIn: parent
+                    text: "home"
+                    iconSize: Appearance.font.pixelSize.larger
+                    color: homeButton.toggled ? Appearance.m3colors.m3onSecondaryContainer : Appearance.colors.colOnLayer0
+                }
+            }
+
+            HorizontalBarSeparator {
+                Layout.fillWidth: true
+                Layout.topMargin: 4
+                Layout.bottomMargin: 4
+            }
 
             Bar.Workspaces {
                 id: workspacesWidget

@@ -85,7 +85,9 @@ hl.workspace_rule({ workspace = "special:special", gaps_out = 30 })
 hl.workspace_rule({ workspace = "name:home", gaps_out = 0, gaps_in = 0 })
 
 -- Dashboard rules
-hl.window_rule({match = {class = "^(btop-dashboard)$" }, fullscreen = true})
+hl.window_rule({match = {title = "^(btop ~)$" }, workspace = "name:home", tile = true})
+hl.window_rule({match = {title = "^(nvtop ~)$" }, workspace = "name:home", tile = true})
+hl.window_rule({match = {title = "^(lazydocker ~)$" }, workspace = "name:home", tile = true})
 
 -- ######## Layer rules ########
 hl.layer_rule({ match = { namespace = ".*" }, xray = true})
