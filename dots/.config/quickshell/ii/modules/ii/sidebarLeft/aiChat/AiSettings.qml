@@ -10,13 +10,13 @@ ScrollView {
     anchors.fill: parent
     clip: true
     contentWidth: parent.width
+    topPadding: 15
+    bottomPadding: 15
 
     ColumnLayout {
         width: scrollView.width - 20
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 15
-        topMargin: 15
-        bottomMargin: 15
 
         // SECTION: Local Agent
         StyledText {
