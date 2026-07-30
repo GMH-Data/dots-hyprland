@@ -1,6 +1,7 @@
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
+import qs.modules.ii.sidebarLeft.aiChat
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
@@ -17,7 +18,12 @@ Item {
     property bool animeEnabled: Config.options.policies.weeb !== 0
     property bool animeCloset: Config.options.policies.weeb === 2
     property var tabButtonList: [
-        ...(root.aiChatEnabled ? [{"icon": "neurology", "name": Translation.tr("Intelligence")}] : []),
+        ...(root.aiChatEnabled ? [
+            {"icon": "forum", "name": Translation.tr("Chat")},
+            {"icon": "hub", "name": Translation.tr("MCP")},
+            {"icon": "database", "name": Translation.tr("RAG")},
+            {"icon": "settings", "name": Translation.tr("Setting")}
+        ] : []),
         ...(root.translatorEnabled ? [{"icon": "translate", "name": Translation.tr("Translator")}] : []),
         ...((root.animeEnabled && !root.animeCloset) ? [{"icon": "bookmark_heart", "name": Translation.tr("Anime")}] : [])
     ]
@@ -84,7 +90,12 @@ Item {
                 }
 
                 contentChildren: [
-                    ...(root.aiChatEnabled ? [aiChat.createObject()] : []),
+                    ...(root.aiChatEnabled ? [
+                        aiChat.createObject(),
+                        aiMcp.createObject(),
+                        aiRag.createObject(),
+                        aiSettings.createObject()
+                    ] : []),
                     ...(root.translatorEnabled ? [translator.createObject()] : []),
                     ...((root.tabButtonList.length === 0 || (!root.aiChatEnabled && !root.translatorEnabled && root.animeCloset)) ? [placeholder.createObject()] : []),
                     ...(root.animeEnabled ? [anime.createObject()] : []),
@@ -94,7 +105,19 @@ Item {
 
         Component {
             id: aiChat
-            AiView {}
+            AiChat {}
+        }
+        Component {
+            id: aiMcp
+            AiMcp {}
+        }
+        Component {
+            id: aiRag
+            AiRag {}
+        }
+        Component {
+            id: aiSettings
+            AiSettings {}
         }
         Component {
             id: translator
