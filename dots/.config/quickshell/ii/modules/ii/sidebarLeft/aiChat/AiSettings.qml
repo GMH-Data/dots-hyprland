@@ -6,14 +6,14 @@ import qs.modules.common
 import qs.modules.common.widgets
 
 ScrollView {
-    id: scrollView
+    id: root
     clip: true
     contentWidth: scrollView.width
     topPadding: 15
     bottomPadding: 15
 
     ColumnLayout {
-        width: scrollView.width - 20
+        width: root.width - 20
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 15
 
@@ -64,6 +64,7 @@ ScrollView {
         }
 
         MaterialTextField {
+            id: modelField
             Layout.fillWidth: true
             placeholderText: "llama3.2:3b"
             text: Config.options.ai.langchainModel
@@ -71,6 +72,65 @@ ScrollView {
             visible: Config.options.ai.langchainAgent
             onTextChanged: {
                 Config.options.ai.langchainModel = text;
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+            visible: Config.options.ai.langchainAgent
+            StyledText {
+                Layout.fillWidth: true
+                font.pixelSize: Appearance.font.pixelSize.small
+                text: Translation.tr("Available Local Models (Click to select)")
+                color: Appearance.colors.colSubtext
+            }
+            
+            MouseArea {
+                Layout.preferredWidth: 20
+                Layout.preferredHeight: 20
+                cursorShape: Qt.PointingHandCursor
+                onClicked: root.fetchModels()
+                StyledText {
+                    anchors.centerIn: parent
+                    font.family: "Material Symbols Rounded"
+                    text: "refresh"
+                    color: Appearance.colors.colText
+                }
+            }
+        }
+
+        ListModel {
+            id: modelsListModel
+        }
+
+        Repeater {
+            model: modelsListModel
+            delegate: Rectangle {
+                Layout.fillWidth: true
+                height: 35
+                color: Appearance.colors.colSurface
+                radius: 5
+                border.color: Appearance.colors.colOutline
+                border.width: 1
+                visible: Config.options.ai.langchainAgent
+
+                RowLayout {
+                    anchors.fill: parent
+                    anchors.margins: 5
+                    StyledText {
+                        Layout.fillWidth: true
+                        text: modelData
+                        color: Appearance.colors.colText
+                    }
+                }
+
+                MouseArea {
+                    anchors.fill: parent
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: {
+                        modelField.text = modelData;
+                    }
+                }
             }
         }
 
@@ -149,4 +209,33 @@ ScrollView {
             }
         }
     }
+
+    function fetchModels() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "http://localhost:11434/api/tags");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === XMLHttpRequest.DONE) {
+                modelsListModel.clear();
+                if (xhr.status === 200) {
+                    try {
+                        var resp = JSON.parse(xhr.responseText);
+                        if (resp.models && resp.models.length > 0) {
+                            for (var i = 0; i < resp.models.length; i++) {
+                                modelsListModel.append({ "modelData": resp.models[i].name });
+                            }
+                        } else {
+                            modelsListModel.append({ "modelData": "No models found" });
+                        }
+                    } catch(e) {
+                        modelsListModel.append({ "modelData": "Error parsing models" });
+                    }
+                } else {
+                    modelsListModel.append({ "modelData": "Ollama not running" });
+                }
+            }
+        }
+        xhr.send();
+    }
+
+    Component.onCompleted: fetchModels()
 }
