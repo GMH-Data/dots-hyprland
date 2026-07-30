@@ -8,7 +8,7 @@ import qs.modules.common.widgets
 ScrollView {
     id: scrollView
     clip: true
-    contentWidth: parent.width
+    contentWidth: scrollView.width
     topPadding: 15
     bottomPadding: 15
 

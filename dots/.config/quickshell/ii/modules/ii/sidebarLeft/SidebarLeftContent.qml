@@ -70,6 +70,7 @@ Item {
                 ToolbarTabBar {
                     id: tabBar
                     anchors.verticalCenter: parent.verticalCenter
+                    x: Math.max(0, (parent.width - width) / 2)
                     tabButtonList: root.tabButtonList
                     currentIndex: swipeView.currentIndex
                 }
