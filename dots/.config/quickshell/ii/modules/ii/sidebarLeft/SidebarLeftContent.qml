@@ -61,9 +61,9 @@ Item {
 
             Flickable {
                 Layout.fillWidth: true
-                Layout.fillHeight: true
+                implicitHeight: tabBar.implicitHeight
                 contentWidth: tabBar.implicitWidth
-                contentHeight: parent.height
+                contentHeight: tabBar.implicitHeight
                 clip: true
                 flickableDirection: Flickable.HorizontalFlick
 
