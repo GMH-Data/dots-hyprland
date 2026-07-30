@@ -94,7 +94,7 @@ Item {
 
         Component {
             id: aiChat
-            AiChat {}
+            AiView {}
         }
         Component {
             id: translator
