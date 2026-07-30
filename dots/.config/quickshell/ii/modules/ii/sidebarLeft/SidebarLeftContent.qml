@@ -60,9 +60,10 @@ Item {
             enableShadow: false
 
             Flickable {
+                id: flickable
                 Layout.fillWidth: true
                 implicitHeight: tabBar.implicitHeight
-                contentWidth: tabBar.implicitWidth
+                contentWidth: Math.max(width, tabBar.implicitWidth)
                 contentHeight: tabBar.implicitHeight
                 clip: true
                 flickableDirection: Flickable.HorizontalFlick
@@ -70,7 +71,7 @@ Item {
                 ToolbarTabBar {
                     id: tabBar
                     anchors.verticalCenter: parent.verticalCenter
-                    x: Math.max(0, (parent.width - width) / 2)
+                    anchors.horizontalCenter: parent.horizontalCenter
                     tabButtonList: root.tabButtonList
                     currentIndex: swipeView.currentIndex
                 }
