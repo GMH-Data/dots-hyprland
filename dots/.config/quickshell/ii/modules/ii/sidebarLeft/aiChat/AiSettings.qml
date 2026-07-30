@@ -13,7 +13,7 @@ ScrollView {
     bottomPadding: 15
 
     ColumnLayout {
-        width: parent.width - 20
+        width: scrollView.width - 20
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 15
 
