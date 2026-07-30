@@ -56,12 +56,23 @@ Item {
         Toolbar {
             visible: tabButtonList.length > 0
             Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
             enableShadow: false
-            ToolbarTabBar {
-                id: tabBar
-                Layout.alignment: Qt.AlignHCenter
-                tabButtonList: root.tabButtonList
-                currentIndex: swipeView.currentIndex
+
+            Flickable {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                contentWidth: tabBar.implicitWidth
+                contentHeight: parent.height
+                clip: true
+                flickableDirection: Flickable.HorizontalFlick
+
+                ToolbarTabBar {
+                    id: tabBar
+                    anchors.verticalCenter: parent.verticalCenter
+                    tabButtonList: root.tabButtonList
+                    currentIndex: swipeView.currentIndex
+                }
             }
         }
 
