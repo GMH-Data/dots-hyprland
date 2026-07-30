@@ -3,9 +3,10 @@ import QtQuick.Layouts
 import qs.modules.common
 import qs.modules.common.widgets
 
+import qs.services
+
 Item {
     id: root
-    anchors.fill: parent
 
     ColumnLayout {
         anchors.centerIn: parent

@@ -7,14 +7,13 @@ import qs.modules.common.widgets
 
 ScrollView {
     id: scrollView
-    anchors.fill: parent
     clip: true
     contentWidth: parent.width
     topPadding: 15
     bottomPadding: 15
 
     ColumnLayout {
-        width: scrollView.width - 20
+        width: parent.width - 20
         anchors.horizontalCenter: parent.horizontalCenter
         spacing: 15
 

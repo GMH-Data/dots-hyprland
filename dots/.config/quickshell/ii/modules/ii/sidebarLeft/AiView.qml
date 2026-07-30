@@ -9,7 +9,6 @@ import Qt5Compat.GraphicalEffects
 
 Item {
     id: root
-    anchors.fill: parent
 
     property var tabButtonList: [
         {"icon": "forum", "name": Translation.tr("Chat")},
