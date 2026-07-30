@@ -45,13 +45,12 @@ ScrollView {
             visible: Config.options.ai.langchainAgent
         }
 
-        MaterialTextArea {
+        MaterialTextField {
             Layout.fillWidth: true
             placeholderText: "http://localhost:8000/v1/chat/completions"
             text: Config.options.ai.langchainEndpoint
             enabled: Config.options.ai.langchainAgent
             visible: Config.options.ai.langchainAgent
-            wrapMode: TextEdit.Wrap
             onTextChanged: {
                 Config.options.ai.langchainEndpoint = text;
             }
@@ -65,13 +64,12 @@ ScrollView {
             visible: Config.options.ai.langchainAgent
         }
 
-        MaterialTextArea {
+        MaterialTextField {
             Layout.fillWidth: true
             placeholderText: "llama3.2:3b"
             text: Config.options.ai.langchainModel
             enabled: Config.options.ai.langchainAgent
             visible: Config.options.ai.langchainAgent
-            wrapMode: TextEdit.Wrap
             onTextChanged: {
                 Config.options.ai.langchainModel = text;
             }
@@ -100,12 +98,11 @@ ScrollView {
             color: Appearance.colors.colSubtext
         }
 
-        MaterialTextArea {
+        MaterialTextField {
             Layout.fillWidth: true
             placeholderText: Translation.tr("Paste Gemini API Key here")
             text: Ai.apiKeys["gemini"] ?? ""
             echoMode: TextInput.Password
-            wrapMode: TextEdit.NoWrap
             onTextChanged: {
                 if (text !== (Ai.apiKeys["gemini"] ?? "")) {
                     KeyringStorage.setNestedField(["apiKeys", "gemini"], text.trim());
@@ -121,12 +118,11 @@ ScrollView {
             color: Appearance.colors.colSubtext
         }
 
-        MaterialTextArea {
+        MaterialTextField {
             Layout.fillWidth: true
             placeholderText: Translation.tr("Paste OpenRouter API Key here")
             text: Ai.apiKeys["openrouter"] ?? ""
             echoMode: TextInput.Password
-            wrapMode: TextEdit.NoWrap
             onTextChanged: {
                 if (text !== (Ai.apiKeys["openrouter"] ?? "")) {
                     KeyringStorage.setNestedField(["apiKeys", "openrouter"], text.trim());
@@ -142,12 +138,11 @@ ScrollView {
             color: Appearance.colors.colSubtext
         }
 
-        MaterialTextArea {
+        MaterialTextField {
             Layout.fillWidth: true
             placeholderText: Translation.tr("Paste Mistral API Key here")
             text: Ai.apiKeys["mistral"] ?? ""
             echoMode: TextInput.Password
-            wrapMode: TextEdit.NoWrap
             onTextChanged: {
                 if (text !== (Ai.apiKeys["mistral"] ?? "")) {
                     KeyringStorage.setNestedField(["apiKeys", "mistral"], text.trim());
