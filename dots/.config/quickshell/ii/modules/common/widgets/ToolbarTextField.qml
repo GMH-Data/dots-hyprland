@@ -21,9 +21,10 @@ TextField {
         hintingPreference: Font.PreferFullHinting
         variableAxes: Appearance.font.variableAxes.main
     }
-    renderType: Text.NativeRendering
-    selectedTextColor: Appearance.colors.colOnSecondaryContainer
-    selectionColor: Appearance.colors.colSecondaryContainer
+    renderType: Text.QtRendering
+    selectedTextColor: Appearance.m3colors.m3onPrimary
+    selectionColor: Appearance.m3colors.m3primary
+
 
     background: Rectangle {
         id: background

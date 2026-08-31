@@ -1,16 +1,11 @@
 #!/usr/bin/env bash
 
-# Get the list, skip the header, and extract the first column (model names)
-model_names=$(ollama list | tail -n +2 | awk '{print $1}')
-
-# Build a JSON array
-json_array="["
-for name in $model_names; do
-    json_array+="\"$name\","
+# Wait for Ollama to become ready during system boot (up to 15s)
+for i in {1..30}; do
+    if curl -s --max-time 1 http://localhost:11434/ > /dev/null; then
+        break
+    fi
+    sleep 0.5
 done
 
-# Remove trailing comma and close the array
-json_array="${json_array%,}]"
-
-# Output the JSON array
-echo "$json_array"
+curl -s --max-time 5 http://localhost:11434/api/tags | jq -c '[.models[].name]' || echo "[]"

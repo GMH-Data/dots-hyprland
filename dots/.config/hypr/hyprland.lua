@@ -11,6 +11,12 @@ if is_file_exists(HOME .. "/.config/hypr/custom/env.lua") then
     require("custom.env")
 end
 
+-- Global Variables --
+require("hyprland.variables")
+if is_file_exists(HOME .. "/.config/hypr/custom/variables.lua") then
+    require("custom.variables")
+end
+
 -- Default configurations --
 require("hyprland.execs")
 require("hyprland.general")

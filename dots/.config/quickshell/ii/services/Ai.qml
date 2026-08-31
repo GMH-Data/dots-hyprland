@@ -63,13 +63,14 @@ Singleton {
     }
 
     function safeModelName(modelName) {
+        if (!modelName) return "";
         return modelName.replace(/:/g, "_").replace(/ /g, "-").replace(/\//g, "-")
     }
 
-    property list<var> defaultPrompts: []
-    property list<var> userPrompts: []
-    property list<var> promptFiles: [...defaultPrompts, ...userPrompts]
-    property list<var> savedChats: []
+    property var defaultPrompts: []
+    property var userPrompts: []
+    property var promptFiles: [...defaultPrompts, ...userPrompts]
+    property var savedChats: []
 
     property var promptSubstitutions: {
         "{DISTRO}": SystemInfo.distroName,
@@ -123,7 +124,7 @@ Singleton {
                         },
                         "required": ["command"]
                     }
-                },
+                }
             ]}],
             "search": [{
                 "google_search": {}
@@ -177,7 +178,7 @@ Singleton {
                             "required": ["command"]
                         }
                     },
-                },
+                }
             ],
             "search": [],
             "none": [],
@@ -229,13 +230,19 @@ Singleton {
                             "required": ["command"]
                         }
                     },
-                },
+                }
             ],
             "search": [],
             "none": [],
         }
     }
-    property list<var> availableTools: Object.keys(root.tools[models[currentModelId]?.api_format])
+    property var availableTools: {
+        const model = models[currentModelId];
+        if (model && model.api_format && root.tools && root.tools[model.api_format]) {
+            return Object.keys(root.tools[model.api_format]);
+        }
+        return [];
+    }
     property var toolDescriptions: {
         "functions": Translation.tr("Commands, edit configs, search.\nTakes an extra turn to switch to search mode if that's needed"),
         "search": Translation.tr("Gives the model search capabilities (immediately)"),
@@ -296,7 +303,11 @@ Singleton {
         }),
     }
     property var modelList: Object.keys(root.models)
-    property var currentModelId: Persistent.states?.ai?.model || modelList[0]
+    property var currentModelId: {
+        const saved = Persistent.states?.ai?.model;
+        if (saved) return root.safeModelName(saved);
+        return modelList.length > 0 ? modelList[0] : "";
+    }
 
     property var apiStrategies: {
         "openai": openaiApiStrategy.createObject(this),
@@ -355,6 +366,18 @@ Singleton {
         });
     }
 
+    Timer {
+        id: ollamaRetryTimer
+        interval: 2000
+        running: true
+        repeat: true
+        onTriggered: {
+            if (!getOllamaModels.running) {
+                getOllamaModels.running = true;
+            }
+        }
+    }
+
     Process {
         id: getOllamaModels
         running: true
@@ -364,7 +387,9 @@ Singleton {
                 try {
                     if (data.length === 0) return;
                     const dataJson = JSON.parse(data);
-                    root.modelList = [...root.modelList, ...dataJson];
+                    ollamaRetryTimer.running = false;
+                    const safeNames = dataJson.map(m => root.safeModelName(m));
+                    root.modelList = [...root.modelList, ...safeNames];
                     dataJson.forEach(model => {
                         const safeModelName = root.safeModelName(model);
                         root.addModel(safeModelName, {
@@ -480,14 +505,17 @@ Singleton {
     }
 
     function getModel() {
-        return models[currentModelId];
+        return models[currentModelId] || models[root.safeModelName(currentModelId)] || models[modelList[0]];
     }
 
     function setModel(modelId, feedback = true, setPersistentState = true) {
         if (!modelId) modelId = ""
-        modelId = modelId.toLowerCase()
-        if (modelList.indexOf(modelId) !== -1) {
-            const model = models[modelId]
+        var checkId = root.safeModelName(modelId).toLowerCase()
+        if (modelList.indexOf(checkId) === -1) {
+            checkId = modelId.toLowerCase()
+        }
+        if (modelList.indexOf(checkId) !== -1) {
+            const model = models[checkId]
             // See if policy prevents online models
             if (Config.options.policies.ai === 2 && !model.endpoint.includes("localhost")) {
                 root.addMessage(
@@ -496,7 +524,7 @@ Singleton {
                 );
                 return;
             }
-            if (setPersistentState) Persistent.states.ai.model = modelId;
+            if (setPersistentState) Persistent.states.ai.model = checkId;
             if (feedback) root.addMessage(Translation.tr("Model set to %1").arg(model.name), root.interfaceRole);
             if (model.requires_key) {
                 // If key not there show advice
@@ -505,7 +533,7 @@ Singleton {
                 }
             }
         } else {
-            if (feedback) root.addMessage(Translation.tr("Invalid model. Supported: \n```\n") + modelList.join("\n```\n```\n"), Ai.interfaceRole) + "\n```"
+            if (feedback) root.addMessage(Translation.tr("Invalid model. Supported: \n```\n") + modelList.join("\n```\n```\n") + "\n```", Ai.interfaceRole);
         }
     }
 
@@ -704,6 +732,11 @@ Singleton {
         onExited: (exitCode, exitStatus) => {
             const result = requester.currentStrategy.onRequestFinished(requester.message);
             
+            if (result.functionCall) {
+                requester.message.functionCall = result.functionCall;
+                root.handleFunctionCall(result.functionCall.name, result.functionCall.args, requester.message);
+            }
+            
             if (result.finished) {
                 requester.markDone();
             } else if (!requester.message.done) {
@@ -785,18 +818,24 @@ Singleton {
         property string shellCommand: ""
         property AiMessageData message
         property string baseMessageContent: ""
-        command: ["bash", "-c", shellCommand]
-        stdout: SplitParser {
-            onRead: (output) => {
-                commandExecutionProc.message.functionResponse += output + "\n\n";
-                const updatedContent = commandExecutionProc.baseMessageContent + `\n\n<think>\n<tt>${commandExecutionProc.message.functionResponse}</tt>\n</think>`;
-                commandExecutionProc.message.rawContent = updatedContent;
-                commandExecutionProc.message.content = updatedContent;
-            }
-        }
+        command: ["bash", "-c", shellCommand + " 2>&1"]
+        
         onExited: (exitCode, exitStatus) => {
-            commandExecutionProc.message.functionResponse += `[[ Command exited with code ${exitCode} (${exitStatus}) ]]\n`;
+            commandExecutionProc.message.functionResponse += `\n[[ Command exited with code ${exitCode} (${exitStatus}) ]]\n`;
+            const updatedContent = commandExecutionProc.baseMessageContent + `\n\n<think>\n<tt>${commandExecutionProc.message.functionResponse}</tt>\n</think>`;
+            commandExecutionProc.message.rawContent = updatedContent;
+            commandExecutionProc.message.content = updatedContent;
             requester.makeRequest(); // Continue
+        }
+    }
+
+    Connections {
+        target: commandExecutionProc.stdout
+        function onRead(output) {
+            commandExecutionProc.message.functionResponse += output;
+            const updatedContent = commandExecutionProc.baseMessageContent + `\n\n<think>\n<tt>${commandExecutionProc.message.functionResponse}</tt>\n</think>`;
+            commandExecutionProc.message.rawContent = updatedContent;
+            commandExecutionProc.message.content = updatedContent;
         }
     }
 
@@ -913,5 +952,32 @@ Singleton {
         } finally {
             getSavedChats.running = true;
         }
+    }
+
+    function executeCommandDirectly(commandText) {
+        const responseMessage = createFunctionOutputMessage("run_shell_command", "", false);
+        const id = idForMessage(responseMessage);
+        root.messageIDs = [...root.messageIDs, id];
+        root.messageByID[id] = responseMessage;
+
+        var runProc = Qt.createQmlObject('import Quickshell.Io 1.0; Process {}', root);
+        runProc.command = ["bash", "-c", commandText + " 2>&1"];
+        
+        responseMessage.functionResponse = "";
+        runProc.stdout.connect(function(output) {
+            responseMessage.functionResponse += output;
+            const updatedContent = `\n\n<think>\n<tt>${responseMessage.functionResponse}</tt>\n</think>`;
+            responseMessage.rawContent = updatedContent;
+            responseMessage.content = updatedContent;
+        });
+        runProc.exited.connect(function(exitCode, exitStatus) {
+            responseMessage.functionResponse += `\n[[ Command exited with code ${exitCode} ]]`;
+            const updatedContent = `\n\n<think>\n<tt>${responseMessage.functionResponse}</tt>\n</think>`;
+            responseMessage.rawContent = updatedContent;
+            responseMessage.content = updatedContent;
+            requester.makeRequest();
+            runProc.destroy();
+        });
+        runProc.running = true;
     }
 }

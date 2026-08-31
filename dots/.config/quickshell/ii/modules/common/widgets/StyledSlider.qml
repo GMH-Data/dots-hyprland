@@ -49,7 +49,7 @@ Slider {
     property real dividerMargins: 2
     property real trackDotSize: 3
     property bool usePercentTooltip: true
-    property string tooltipContent: usePercentTooltip ? `${Math.round(((value - from) / (to - from)) * 100)}%` : `${Math.round(value)}`
+    property string tooltipContent: usePercentTooltip ? `${Math.round(((value - from) / (to - from)) * 100)}%` : `${Number(value.toFixed(2)).toString()}`
     property bool wavy: configuration === StyledSlider.Configuration.Wavy // If true, the progress bar will have a wavy fill effect
     property bool animateWave: true
     property real waveAmplitudeMultiplier: wavy ? 0.5 : 0

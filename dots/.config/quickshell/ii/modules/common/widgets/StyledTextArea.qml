@@ -6,9 +6,10 @@ import QtQuick.Controls
  * Does not include visual layout, but includes the easily neglected colors.
  */
 TextArea {
-    renderType: Text.NativeRendering
-    selectedTextColor: Appearance.m3colors.m3onSecondaryContainer
-    selectionColor: Appearance.colors.colSecondaryContainer
+    renderType: Text.QtRendering
+    selectedTextColor: Appearance.m3colors.m3onPrimary
+    selectionColor: Appearance.m3colors.m3primary
+
     placeholderTextColor: Appearance.m3colors.m3outline
     color: Appearance.colors.colOnLayer0
     font {

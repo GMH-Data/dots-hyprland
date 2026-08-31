@@ -4,7 +4,7 @@
 hl.window_rule({match = {class = "^()$", title = "^()$" },                   no_blur = true })
 
 -- Disable blur for every window
-hl.window_rule({match = {class = ".*" }, no_blur = true })
+-- hl.window_rule({match = {class = ".*" }, no_blur = true })
 
 -- Floating
 hl.window_rule({match = {title = "^(Open File)(.*)$" },                      center = true})
@@ -105,6 +105,8 @@ hl.layer_rule({ match = { namespace = "gtk-layer-shell" }, blur = true})
 hl.layer_rule({ match = { namespace = "gtk-layer-shell" }, ignore_alpha = 0})
 hl.layer_rule({ match = { namespace = "launcher" }, blur = true})
 hl.layer_rule({ match = { namespace = "launcher" }, ignore_alpha = 0.5})
+hl.layer_rule({ match = { namespace = "nwg-drawer" }, blur = true})
+hl.layer_rule({ match = { namespace = "nwg-drawer" }, ignore_alpha = 0.5})
 hl.layer_rule({ match = { namespace = "notifications" }, blur = true})
 hl.layer_rule({ match = { namespace = "notifications" }, ignore_alpha = 0.69})
 hl.layer_rule({ match = { namespace = "logout_dialog" }, blur = true}) -- wlogout

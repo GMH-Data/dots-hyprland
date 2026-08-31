@@ -1,11 +1,18 @@
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Io
 import qs.services
 import qs.modules.common
 import qs.modules.common.widgets
 
 ContentPage {
     forceWidth: true
+
+    Process {
+        id: updateOpacityProc
+        command: ["sh", "-c", `sed -i 's/active_opacity = .*/active_opacity = ${Config.options.windows.activeOpacity},/' ~/.config/hypr/hyprland/general.lua && sed -i 's/inactive_opacity = .*/inactive_opacity = ${Config.options.windows.inactiveOpacity},/' ~/.config/hypr/hyprland/general.lua && hyprctl reload`]
+    }
 
     ContentSection {
         icon: "keyboard"
@@ -929,4 +936,34 @@ ContentPage {
         }
     }
 
+    ContentSection {
+        icon: "window"
+        title: Translation.tr("Windows")
+
+        ConfigSlider {
+            text: Translation.tr("Active Window Opacity")
+            value: Config.options.windows.activeOpacity
+            usePercentTooltip: true
+            buttonIcon: "visibility"
+            from: 0.1
+            to: 1.0
+            onValueChanged: {
+                Config.options.windows.activeOpacity = value;
+                updateOpacityProc.running = true;
+            }
+        }
+
+        ConfigSlider {
+            text: Translation.tr("Inactive Window Opacity")
+            value: Config.options.windows.inactiveOpacity
+            usePercentTooltip: true
+            buttonIcon: "visibility_off"
+            from: 0.1
+            to: 1.0
+            onValueChanged: {
+                Config.options.windows.inactiveOpacity = value;
+                updateOpacityProc.running = true;
+            }
+        }
+    }
 }

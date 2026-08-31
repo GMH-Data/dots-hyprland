@@ -1,4 +1,5 @@
 import QtQuick
+import qs.modules.common
 import qs.modules.common.functions as CF
 
 ApiStrategy {
@@ -64,15 +65,21 @@ ApiStrategy {
                 }
             });
         }
+        let generationConfig = {
+            "temperature": temperature
+        };
+        if (Config.options.ai.thinkingMode && (model.model.includes("2.5") || model.model.includes("2.0") || model.model.includes("thinking"))) {
+            generationConfig["thinkingConfig"] = {
+                "thinkingBudget": 2048
+            };
+        }
         let baseData = {
             "contents": contents,
             "tools": tools,
             "system_instruction": {
                 "parts": [{ text: systemPrompt }]
             },
-            "generationConfig": {
-                "temperature": temperature,
-            },
+            "generationConfig": generationConfig,
         };
         // print("Gemini API call payload:", JSON.stringify(baseData, null, 2));
         return model.extraParams ? Object.assign({}, baseData, model.extraParams) : baseData;

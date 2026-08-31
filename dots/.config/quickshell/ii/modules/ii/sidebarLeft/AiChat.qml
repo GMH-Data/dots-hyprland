@@ -12,7 +12,7 @@ import Quickshell
 import Quickshell.Io
 
 Item {
-    id: root
+    id: aiChatRoot
     property real padding: 4
     property var inputField: messageInputField
     property string commandPrefix: "/"
@@ -22,7 +22,7 @@ Item {
 
     onFocusChanged: focus => {
         if (focus) {
-            root.inputField.forceActiveFocus();
+            aiChatRoot.inputField.forceActiveFocus();
         }
     }
 
@@ -63,7 +63,7 @@ Item {
             execute: args => {
                 // console.log(args)
                 if (args.length == 0 || args[0] == "get") {
-                    Ai.addMessage(Translation.tr("Usage: %1tool TOOL_NAME").arg(root.commandPrefix), Ai.interfaceRole);
+                    Ai.addMessage(Translation.tr("Usage: %1tool TOOL_NAME").arg(aiChatRoot.commandPrefix), Ai.interfaceRole);
                 } else {
                     const tool = args[0];
                     const switched = Ai.setTool(tool);
@@ -101,7 +101,7 @@ Item {
             execute: args => {
                 const joinedArgs = args.join(" ");
                 if (joinedArgs.trim().length == 0) {
-                    Ai.addMessage(Translation.tr("Usage: %1save CHAT_NAME").arg(root.commandPrefix), Ai.interfaceRole);
+                    Ai.addMessage(Translation.tr("Usage: %1save CHAT_NAME").arg(aiChatRoot.commandPrefix), Ai.interfaceRole);
                     return;
                 }
                 Ai.saveChat(joinedArgs);
@@ -113,7 +113,7 @@ Item {
             execute: args => {
                 const joinedArgs = args.join(" ");
                 if (joinedArgs.trim().length == 0) {
-                    Ai.addMessage(Translation.tr("Usage: %1load CHAT_NAME").arg(root.commandPrefix), Ai.interfaceRole);
+                    Ai.addMessage(Translation.tr("Usage: %1load CHAT_NAME").arg(aiChatRoot.commandPrefix), Ai.interfaceRole);
                     return;
                 }
                 Ai.loadChat(joinedArgs);
@@ -198,11 +198,11 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
     ]
 
     function handleInput(inputText) {
-        if (inputText.startsWith(root.commandPrefix)) {
+        if (inputText.startsWith(aiChatRoot.commandPrefix)) {
             // Handle special commands
             const command = inputText.split(" ")[0].substring(1);
             const args = inputText.split(" ").slice(1);
-            const commandObj = root.allCommands.find(cmd => cmd.name === `${command}`);
+            const commandObj = aiChatRoot.allCommands.find(cmd => cmd.name === `${command}`);
             if (commandObj) {
                 commandObj.execute(args);
             } else {
@@ -277,9 +277,9 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
         id: columnLayout
         anchors {
             fill: parent
-            margins: root.padding
+            margins: aiChatRoot.padding
         }
-        spacing: root.padding
+        spacing: aiChatRoot.padding
 
         Item {
             // Messages
@@ -313,7 +313,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 }
                 implicitWidth: statusRowLayout.implicitWidth + 10 * 2
                 implicitHeight: Math.max(statusRowLayout.implicitHeight, 38)
-                radius: Appearance.rounding.normal - root.padding
+                radius: Appearance.rounding.normal - aiChatRoot.padding
                 color: messageListView.atYBeginning ? Appearance.colors.colLayer2 : Appearance.colors.colLayer2Base
                 Behavior on color {
                     animation: Appearance.animation.elementMoveFast.colorAnimation.createObject(this)
@@ -324,15 +324,15 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     spacing: 10
 
                     StatusItem {
-                        icon: Ai.currentModelHasApiKey ? "key" : "key_off"
+                        icon: (Ai.apiKeys["public"] && Ai.apiKeys["public"].length > 0) ? "key" : "key_off"
                         statusText: ""
-                        description: Ai.currentModelHasApiKey ? Translation.tr("API key is set\nChange with /key YOUR_API_KEY") : Translation.tr("No API key\nSet it with /key YOUR_API_KEY")
+                        description: (Ai.apiKeys["public"] && Ai.apiKeys["public"].length > 0) ? Translation.tr("API key is set\nSet from Settings") : Translation.tr("No API key\nSet from Settings")
                     }
                     StatusSeparator {}
                     StatusItem {
                         icon: "device_thermostat"
-                        statusText: Ai.temperature.toFixed(1)
-                        description: Translation.tr("Temperature\nChange with /temp VALUE")
+                        statusText: Config.options.ai.temperature.toFixed(2)
+                        description: Translation.tr("Temperature\nSet from Settings")
                     }
                     StatusSeparator {
                         visible: Ai.tokenCount.total > 0
@@ -389,7 +389,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                     messageData: {
                         Ai.messageByID[modelData];
                     }
-                    messageInputField: root.inputField
+                    messageInputField: aiChatRoot.inputField
                 }
             }
 
@@ -409,13 +409,13 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
         }
 
         DescriptionBox {
-            text: root.suggestionList[suggestions.selectedIndex]?.description ?? ""
-            showArrows: root.suggestionList.length > 1
+            text: aiChatRoot.suggestionList[suggestions.selectedIndex]?.description ?? ""
+            showArrows: aiChatRoot.suggestionList.length > 1
         }
 
         FlowButtonGroup { // Suggestions
             id: suggestions
-            visible: root.suggestionList.length > 0 && messageInputField.text.length > 0
+            visible: aiChatRoot.suggestionList.length > 0 && messageInputField.text.length > 0
             property int selectedIndex: 0
             Layout.fillWidth: true
             spacing: 5
@@ -424,7 +424,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 id: suggestionRepeater
                 model: {
                     suggestions.selectedIndex = 0;
-                    return root.suggestionList.slice(0, 10);
+                    return aiChatRoot.suggestionList.slice(0, 10);
                 }
                 delegate: ApiCommandButton {
                     id: commandButton
@@ -463,7 +463,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
 
             function acceptSelectedWord() {
                 if (suggestions.selectedIndex >= 0 && suggestions.selectedIndex < suggestionRepeater.count) {
-                    const word = root.suggestionList[suggestions.selectedIndex].name;
+                    const word = aiChatRoot.suggestionList[suggestions.selectedIndex].name;
                     suggestions.acceptSuggestion(word);
                 }
             }
@@ -473,7 +473,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
             id: inputWrapper
             property real spacing: 5
             Layout.fillWidth: true
-            radius: Appearance.rounding.normal - root.padding
+            radius: Appearance.rounding.normal - aiChatRoot.padding
             color: Appearance.colors.colLayer2
             implicitHeight: Math.max(inputFieldRowLayout.implicitHeight + inputFieldRowLayout.anchors.topMargin + commandButtonsRow.implicitHeight + commandButtonsRow.anchors.bottomMargin + spacing, 45) + (attachedFileIndicator.implicitHeight + spacing + attachedFileIndicator.anchors.topMargin)
             clip: true
@@ -507,7 +507,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 ScrollView {
                     id: inputScrollView
                     Layout.fillWidth: true
-                    Layout.preferredHeight: Math.min(root.height * 3/5, messageInputField.height)
+                    Layout.preferredHeight: Math.min(aiChatRoot.height * 3/5, messageInputField.height)
                     clip: true
                     ScrollBar.vertical.policy: ScrollBar.AsNeeded
 
@@ -517,19 +517,19 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                         wrapMode: TextArea.Wrap
                         padding: 10
                         color: activeFocus ? Appearance.m3colors.m3onSurface : Appearance.m3colors.m3onSurfaceVariant
-                        placeholderText: Translation.tr('Message the model... "%1" for commands').arg(root.commandPrefix)
+                        placeholderText: Translation.tr('Message the model... "%1" for commands').arg(aiChatRoot.commandPrefix)
 
                         background: null
 
                         onTextChanged: {
                             // Handle suggestions
                             if (messageInputField.text.length === 0) {
-                                root.suggestionQuery = "";
-                                root.suggestionList = [];
+                                if (aiChatRoot.suggestionQuery !== "") aiChatRoot.suggestionQuery = "";
+                                if (aiChatRoot.suggestionList.length > 0) aiChatRoot.suggestionList = [];
                                 return;
-                            } else if (messageInputField.text.startsWith(`${root.commandPrefix}model`)) {
-                                root.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
-                                const modelResults = Fuzzy.go(root.suggestionQuery, Ai.modelList.map(model => {
+                            } else if (messageInputField.text.startsWith(`${aiChatRoot.commandPrefix}model`)) {
+                                aiChatRoot.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
+                                const modelResults = Fuzzy.go(aiChatRoot.suggestionQuery, Ai.modelList.map(model => {
                                     return {
                                         name: Fuzzy.prepare(model),
                                         obj: model
@@ -538,16 +538,16 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                     all: true,
                                     key: "name"
                                 });
-                                root.suggestionList = modelResults.map(model => {
+                                aiChatRoot.suggestionList = modelResults.map(model => {
                                     return {
-                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (root.commandPrefix + "model ") : ""}${model.target}`,
+                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (aiChatRoot.commandPrefix + "model ") : ""}${model.target}`,
                                         displayName: `${Ai.models[model.target].name}`,
                                         description: `${Ai.models[model.target].description}`
                                     };
                                 });
-                            } else if (messageInputField.text.startsWith(`${root.commandPrefix}prompt`)) {
-                                root.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
-                                const promptFileResults = Fuzzy.go(root.suggestionQuery, Ai.promptFiles.map(file => {
+                            } else if (messageInputField.text.startsWith(`${aiChatRoot.commandPrefix}prompt`)) {
+                                aiChatRoot.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
+                                const promptFileResults = Fuzzy.go(aiChatRoot.suggestionQuery, Ai.promptFiles.map(file => {
                                     return {
                                         name: Fuzzy.prepare(file),
                                         obj: file
@@ -556,16 +556,16 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                     all: true,
                                     key: "name"
                                 });
-                                root.suggestionList = promptFileResults.map(file => {
+                                aiChatRoot.suggestionList = promptFileResults.map(file => {
                                     return {
-                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (root.commandPrefix + "prompt ") : ""}${file.target}`,
+                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (aiChatRoot.commandPrefix + "prompt ") : ""}${file.target}`,
                                         displayName: `${FileUtils.trimFileExt(FileUtils.fileNameForPath(file.target))}`,
                                         description: Translation.tr("Load prompt from %1").arg(file.target)
                                     };
                                 });
-                            } else if (messageInputField.text.startsWith(`${root.commandPrefix}save`)) {
-                                root.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
-                                const promptFileResults = Fuzzy.go(root.suggestionQuery, Ai.savedChats.map(file => {
+                            } else if (messageInputField.text.startsWith(`${aiChatRoot.commandPrefix}save`)) {
+                                aiChatRoot.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
+                                const promptFileResults = Fuzzy.go(aiChatRoot.suggestionQuery, Ai.savedChats.map(file => {
                                     return {
                                         name: Fuzzy.prepare(file),
                                         obj: file
@@ -574,17 +574,17 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                     all: true,
                                     key: "name"
                                 });
-                                root.suggestionList = promptFileResults.map(file => {
+                                aiChatRoot.suggestionList = promptFileResults.map(file => {
                                     const chatName = FileUtils.trimFileExt(FileUtils.fileNameForPath(file.target)).trim();
                                     return {
-                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (root.commandPrefix + "save ") : ""}${chatName}`,
+                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (aiChatRoot.commandPrefix + "save ") : ""}${chatName}`,
                                         displayName: `${chatName}`,
                                         description: Translation.tr("Save chat to %1").arg(chatName)
                                     };
                                 });
-                            } else if (messageInputField.text.startsWith(`${root.commandPrefix}load`)) {
-                                root.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
-                                const promptFileResults = Fuzzy.go(root.suggestionQuery, Ai.savedChats.map(file => {
+                            } else if (messageInputField.text.startsWith(`${aiChatRoot.commandPrefix}load`)) {
+                                aiChatRoot.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
+                                const promptFileResults = Fuzzy.go(aiChatRoot.suggestionQuery, Ai.savedChats.map(file => {
                                     return {
                                         name: Fuzzy.prepare(file),
                                         obj: file
@@ -593,17 +593,17 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                     all: true,
                                     key: "name"
                                 });
-                                root.suggestionList = promptFileResults.map(file => {
+                                aiChatRoot.suggestionList = promptFileResults.map(file => {
                                     const chatName = FileUtils.trimFileExt(FileUtils.fileNameForPath(file.target)).trim();
                                     return {
-                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (root.commandPrefix + "load ") : ""}${chatName}`,
+                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (aiChatRoot.commandPrefix + "load ") : ""}${chatName}`,
                                         displayName: `${chatName}`,
                                         description: Translation.tr(`Load chat from %1`).arg(file.target)
                                     };
                                 });
-                            } else if (messageInputField.text.startsWith(`${root.commandPrefix}tool`)) {
-                                root.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
-                                const toolResults = Fuzzy.go(root.suggestionQuery, Ai.availableTools.map(tool => {
+                            } else if (messageInputField.text.startsWith(`${aiChatRoot.commandPrefix}tool`)) {
+                                aiChatRoot.suggestionQuery = messageInputField.text.split(" ")[1] ?? "";
+                                const toolResults = Fuzzy.go(aiChatRoot.suggestionQuery, Ai.availableTools.map(tool => {
                                     return {
                                         name: Fuzzy.prepare(tool),
                                         obj: tool
@@ -612,27 +612,30 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                     all: true,
                                     key: "name"
                                 });
-                                root.suggestionList = toolResults.map(tool => {
+                                aiChatRoot.suggestionList = toolResults.map(tool => {
                                     const toolName = tool.target;
                                     return {
-                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (root.commandPrefix + "tool ") : ""}${tool.target}`,
+                                        name: `${messageInputField.text.trim().split(" ").length == 1 ? (aiChatRoot.commandPrefix + "tool ") : ""}${tool.target}`,
                                         displayName: toolName,
                                         description: Ai.toolDescriptions[toolName]
                                     };
                                 });
-                            } else if (messageInputField.text.startsWith(root.commandPrefix)) {
-                                root.suggestionQuery = messageInputField.text;
-                                root.suggestionList = root.allCommands.filter(cmd => cmd.name.startsWith(messageInputField.text.substring(1))).map(cmd => {
+                            } else if (messageInputField.text.startsWith(aiChatRoot.commandPrefix)) {
+                                aiChatRoot.suggestionQuery = messageInputField.text;
+                                aiChatRoot.suggestionList = aiChatRoot.allCommands.filter(cmd => cmd.name.startsWith(messageInputField.text.substring(1))).map(cmd => {
                                     return {
-                                        name: `${root.commandPrefix}${cmd.name}`,
+                                        name: `${aiChatRoot.commandPrefix}${cmd.name}`,
                                         description: `${cmd.description}`
                                     };
                                 });
+                            } else {
+                                if (aiChatRoot.suggestionQuery !== "") aiChatRoot.suggestionQuery = "";
+                                if (aiChatRoot.suggestionList.length > 0) aiChatRoot.suggestionList = [];
                             }
                         }
 
                         function accept() {
-                            root.handleInput(text);
+                            aiChatRoot.handleInput(text);
                             text = "";
                         }
 
@@ -644,7 +647,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                 suggestions.selectedIndex = Math.max(0, suggestions.selectedIndex - 1);
                                 event.accepted = true;
                             } else if (event.key === Qt.Key_Down && suggestions.visible) {
-                                suggestions.selectedIndex = Math.min(root.suggestionList.length - 1, suggestions.selectedIndex + 1);
+                                suggestions.selectedIndex = Math.min(aiChatRoot.suggestionList.length - 1, suggestions.selectedIndex + 1);
                                 event.accepted = true;
                             } else if ((event.key === Qt.Key_Enter || event.key === Qt.Key_Return)) {
                                 if (event.modifiers & Qt.ShiftModifier) {
@@ -655,7 +658,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                                     // Accept text
                                     const inputText = messageInputField.text;
                                     messageInputField.clear();
-                                    root.handleInput(inputText);
+                                    aiChatRoot.handleInput(inputText);
                                     event.accepted = true;
                                 }
                             } else if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_V) {
@@ -709,7 +712,7 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                         cursorShape: sendButton.enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
                         onClicked: {
                             const inputText = messageInputField.text;
-                            root.handleInput(inputText);
+                            aiChatRoot.handleInput(inputText);
                             messageInputField.clear();
                         }
                     }
@@ -749,15 +752,15 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                 ApiInputBoxIndicator {
                     // Model indicator
                     icon: "api"
-                    text: Ai.getModel().name
-                    tooltipText: Translation.tr("Current model: %1\nSet it with %2model MODEL").arg(Ai.getModel().name).arg(root.commandPrefix)
+                    text: Ai.getModel() ? Ai.getModel().name : "Loading..."
+                    tooltipText: Translation.tr("Current model: %1\nSet it with %2model MODEL").arg(Ai.getModel() ? Ai.getModel().name : "Loading...").arg(aiChatRoot ? aiChatRoot.commandPrefix : "/")
                 }
 
                 ApiInputBoxIndicator {
                     // Tool indicator
                     icon: "service_toolbox"
                     text: Ai.currentTool.charAt(0).toUpperCase() + Ai.currentTool.slice(1)
-                    tooltipText: Translation.tr("Current tool: %1\nSet it with %2tool TOOL").arg(Ai.currentTool).arg(root.commandPrefix)
+                    tooltipText: Translation.tr("Current tool: %1\nSet it with %2tool TOOL").arg(Ai.currentTool).arg(aiChatRoot ? aiChatRoot.commandPrefix : "/")
                 }
 
                 Item {
@@ -772,11 +775,13 @@ Inline w/ backslash and round brackets \\(e^{i\\pi} + 1 = 0\\)
                         // Command buttons
                         model: commandButtonsRow.commandsShown
                         delegate: ApiCommandButton {
-                            property string commandRepresentation: `${root.commandPrefix}${modelData.name}`
+                            property string commandRepresentation: `${aiChatRoot ? aiChatRoot.commandPrefix : "/"}${modelData.name}`
                             buttonText: commandRepresentation
                             downAction: () => {
                                 if (modelData.sendDirectly) {
-                                    root.handleInput(commandRepresentation);
+                                    if (aiChatRoot) {
+                                        aiChatRoot.handleInput(commandRepresentation);
+                                    }
                                 } else {
                                     messageInputField.text = commandRepresentation + (modelData.dontAddSpace ? "" : " ");
                                     messageInputField.cursorPosition = messageInputField.text.length;

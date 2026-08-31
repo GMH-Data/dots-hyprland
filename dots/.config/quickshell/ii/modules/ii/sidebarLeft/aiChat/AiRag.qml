@@ -24,7 +24,7 @@ Item {
             font.pixelSize: Appearance.font.pixelSize.large
             font.bold: true
             text: "Retrieval-Augmented Generation (RAG)"
-            color: Appearance.colors.colText
+            color: Appearance.colors.colOnLayer2
         }
 
         StyledText {

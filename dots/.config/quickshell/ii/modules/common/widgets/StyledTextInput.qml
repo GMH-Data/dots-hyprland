@@ -7,9 +7,10 @@ import QtQuick.Controls
  */
 TextInput {
     color: Appearance.colors.colOnLayer1
-    renderType: Text.NativeRendering
-    selectedTextColor: Appearance.m3colors.m3onSecondaryContainer
-    selectionColor: Appearance.colors.colSecondaryContainer
+    renderType: Text.QtRendering
+    selectedTextColor: Appearance.m3colors.m3onPrimary
+    selectionColor: Appearance.m3colors.m3primary
+
     font {
         family: Appearance.font.family.main
         pixelSize: Appearance?.font.pixelSize.small ?? 15

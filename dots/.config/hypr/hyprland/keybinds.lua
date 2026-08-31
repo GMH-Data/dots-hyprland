@@ -23,10 +23,9 @@ hl.bind("SUPER_R", hl.dsp.global("quickshell:workspaceNumber"),
 hl.bind("SUPER + Tab", hl.dsp.global("quickshell:overviewWorkspacesToggle"), { description = "Shell: Toggle overview" })
 hl.bind("SUPER + V", hl.dsp.global("quickshell:overviewClipboardToggle"))
 hl.bind("SUPER + Period", hl.dsp.global("quickshell:overviewEmojiToggle"))
-hl.bind("SUPER + A", hl.dsp.global("quickshell:sidebarLeftToggle"), { description = "Shell: Toggle left sidebar" })
-hl.bind("SUPER + ALT + A", hl.dsp.global("quickshell:sidebarLeftToggleDetach"))
-hl.bind("SUPER + B", hl.dsp.global("quickshell:sidebarLeftToggle"))
-hl.bind("SUPER + O", hl.dsp.global("quickshell:sidebarLeftToggle"))
+hl.bind("SUPER + A", hl.dsp.exec_cmd("pkill nwg-drawer || nwg-drawer"), { description = "App: Application Drawer" })
+hl.bind("SUPER + B", hl.dsp.global("quickshell:sidebarLeftToggle"), { description = "Shell: Toggle left sidebar" })
+hl.bind("SUPER + ALT + B", hl.dsp.global("quickshell:sidebarLeftToggleDetach"))
 hl.bind("SUPER + N", hl.dsp.global("quickshell:sidebarRightToggle"), { description = "Shell: Toggle right sidebar" })
 hl.bind("SUPER + Slash", hl.dsp.global("quickshell:cheatsheetToggle"), { description = "Shell: Toggle cheatsheet" })
 hl.bind("SUPER + K", hl.dsp.global("quickshell:oskToggle"), { description = "Shell: Toggle on-screen keyboard" })
@@ -99,7 +98,6 @@ hl.bind("CTRL + Print", hl.dsp.exec_cmd(
     "mkdir -p $(xdg-user-dir PICTURES)/Screenshots && " ..
     grimhyprctl .. " $(xdg-user-dir PICTURES)/Screenshots/Screenshot_\"$(date '+%Y-%m-%d_%H.%M.%S')\".png"
 ), { locked = true, non_consuming = true, description = "Utilities: Screenshot >> clipboard & file" })
-hl.bind("CTRL + Print", hl.dsp.exec_cmd(grimhyprctl .. " - | wl-copy"), { locked = true, non_consuming = true })
 --# AI
 hl.bind("SUPER + SHIFT + ALT + mouse:273", hl.dsp.exec_cmd(hyprScripts .. "/ai/primary-buffer-query.sh"),
     { description = "Utilities: Generate AI summary for selected text" })
@@ -354,7 +352,6 @@ hl.bind("CTRL + SHIFT + ALT + SUPER + Delete", hl.dsp.exec_cmd("systemctl powero
 
 --##! Apps
 hl.bind("SUPER + Return", hl.dsp.exec_cmd(terminal), { description = "App: Terminal" })
-hl.bind("SUPER + T", hl.dsp.exec_cmd(terminal))
 hl.bind("CTRL + ALT + T", hl.dsp.exec_cmd(terminal))
 hl.bind("SUPER + E", hl.dsp.exec_cmd(fileManager), { description = "App: File manager" })
 hl.bind("SUPER + W", hl.dsp.exec_cmd(browser), { description = "App: Browser" })

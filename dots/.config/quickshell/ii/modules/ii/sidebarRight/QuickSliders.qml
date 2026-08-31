@@ -6,6 +6,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
+import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Services.UPower
 
@@ -14,6 +15,59 @@ Rectangle {
 
     property var screen: root.QsWindow.window?.screen
     property var brightnessMonitor: Brightness.getMonitorForScreen(screen)
+
+    property real cpuFanSpeed: 0
+    property bool cpuFanAuto: true
+    property real gpuFanSpeed: 0
+    property bool gpuFanAuto: true
+    property real cpuFanActual: 0
+    property real gpuFanActual: 0
+
+    Process {
+        id: getFanStatusProc
+        command: ["/home/gmh/.config/quickshell/ii/scripts/hyprland/get_fan_status.sh"]
+        stdout: SplitParser {
+            onRead: line => {
+                let parts = line.trim().split(",");
+                if (parts.length >= 4) {
+                    let cpuTarget = parseFloat(parts[0]);
+                    let cpuAuto = parts[1] === "true" || parts[1] === "1";
+                    let gpuTarget = parseFloat(parts[2]);
+                    let gpuAuto = parts[3] === "true" || parts[3] === "1";
+
+                    root.cpuFanAuto = cpuAuto;
+                    root.gpuFanAuto = gpuAuto;
+
+                    if (parts.length >= 6) {
+                        root.cpuFanActual = parseFloat(parts[4]) / 100.0;
+                        root.gpuFanActual = parseFloat(parts[5]) / 100.0;
+                    }
+
+                    if (cpuAuto) {
+                        root.cpuFanSpeed = root.cpuFanActual;
+                    } else {
+                        root.cpuFanSpeed = cpuTarget / 100.0;
+                    }
+                    if (gpuAuto) {
+                        root.gpuFanSpeed = root.gpuFanActual;
+                    } else {
+                        root.gpuFanSpeed = gpuTarget / 100.0;
+                    }
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: fanPollTimer
+        interval: 3000
+        running: true
+        repeat: true
+        triggeredOnStart: true
+        onTriggered: {
+            getFanStatusProc.running = true;
+        }
+    }
 
     implicitWidth: contentItem.implicitWidth + root.horizontalPadding * 2
     implicitHeight: contentItem.implicitHeight + root.verticalPadding * 2
@@ -42,19 +96,21 @@ Rectangle {
             sourceComponent: QuickSlider {
                 materialSymbol: "light_mode"
                 secondaryMaterialSymbol: "wb_twilight"
-                stopIndicatorValues: Hyprsunset.gamma !== 100 && root.brightnessMonitor?.brightness !== 0 ? [0.3 + root.brightnessMonitor?.brightness * 0.7] : []
-                value: Hyprsunset.gamma === 100? 0.3 + root.brightnessMonitor?.brightness * 0.7 : (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit) * 0.3
-                tooltipContent: Hyprsunset.gamma === 100 ? `${Math.round(root.brightnessMonitor?.brightness * 100)}%` : `${Translation.tr("Gamma")} ${Hyprsunset.gamma}%`
+                stopIndicatorValues: Hyprsunset.gamma !== 100 && (root.brightnessMonitor && root.brightnessMonitor.brightness !== 0) ? [0.3 + (root.brightnessMonitor ? root.brightnessMonitor.brightness : 0) * 0.7] : []
+                value: Hyprsunset.gamma === 100? 0.3 + (root.brightnessMonitor ? root.brightnessMonitor.brightness : 0) * 0.7 : (Hyprsunset.gamma - Hyprsunset.gammaLowerLimit) / (100 - Hyprsunset.gammaLowerLimit) * 0.3
+                tooltipContent: Hyprsunset.gamma === 100 ? `${Math.round((root.brightnessMonitor ? root.brightnessMonitor.brightness : 0) * 100)}%` : `${Translation.tr("Gamma")} ${Hyprsunset.gamma}%`
                 onMoved: {
                     if (value >= 0.3) {
                         // 0.3 - 1.0 brightness
-                        root.brightnessMonitor.setBrightness((value - 0.3) / 0.7);
+                        if (root.brightnessMonitor) {
+                            root.brightnessMonitor.setBrightness((value - 0.3) / 0.7);
+                        }
                         if (Hyprsunset.gamma !== 100) {
                             Hyprsunset.setGamma(100);
                         }
                     } else {
                         // 0 - 0.3 gamma
-                        if (root.brightnessMonitor.brightness !== 0) {
+                        if (root.brightnessMonitor && root.brightnessMonitor.brightness !== 0) {
                             root.brightnessMonitor.setBrightness(0);
                         }
                         Hyprsunset.setGamma((value / 0.3 * (100 - Hyprsunset.gammaLowerLimit) + Hyprsunset.gammaLowerLimit));
@@ -72,9 +128,11 @@ Rectangle {
             active: Config.options.sidebar.quickSliders.showVolume
             sourceComponent: QuickSlider {
                 materialSymbol: "volume_up"
-                value: Audio.sink.audio.volume
+                value: Audio.sink?.audio?.volume ?? 0
                 onMoved: {
-                    Audio.sink.audio.volume = value
+                    if (Audio.sink && Audio.sink.audio) {
+                        Audio.sink.audio.volume = value
+                    }
                 }
             }
         }
@@ -88,9 +146,55 @@ Rectangle {
             active: Config.options.sidebar.quickSliders.showMic
             sourceComponent: QuickSlider {
                 materialSymbol: "mic"
-                value: Audio.source.audio.volume
+                value: Audio.source?.audio?.volume ?? 0
                 onMoved: {
-                    Audio.source.audio.volume = value
+                    if (Audio.source && Audio.source.audio) {
+                        Audio.source.audio.volume = value
+                    }
+                }
+            }
+        }
+
+        Loader {
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+            visible: !root.cpuFanAuto
+            sourceComponent: QuickSlider {
+                materialSymbol: "toys"
+                value: root.cpuFanSpeed
+                tooltipContent: `CPU Fan: Manual ${Math.round(root.cpuFanSpeed * 100)}%`
+                onMoved: {
+                    root.cpuFanSpeed = value;
+                }
+                onPressedChanged: {
+                    if (!pressed) {
+                        const speed = Math.round(value * 100);
+                        Quickshell.execDetached(["sh", "-c", `echo '2312' | sudo -S /home/gmh/.config/quickshell/ii/scripts/hyprland/fan_control.py set cpu ${speed}`]);
+                    }
+                }
+            }
+        }
+
+        Loader {
+            anchors {
+                left: parent.left
+                right: parent.right
+            }
+            visible: !root.gpuFanAuto
+            sourceComponent: QuickSlider {
+                materialSymbol: "toys"
+                value: root.gpuFanSpeed
+                tooltipContent: `GPU Fan: Manual ${Math.round(root.gpuFanSpeed * 100)}%`
+                onMoved: {
+                    root.gpuFanSpeed = value;
+                }
+                onPressedChanged: {
+                    if (!pressed) {
+                        const speed = Math.round(value * 100);
+                        Quickshell.execDetached(["sh", "-c", `echo '2312' | sudo -S /home/gmh/.config/quickshell/ii/scripts/hyprland/fan_control.py set gpu ${speed}`]);
+                    }
                 }
             }
         }
