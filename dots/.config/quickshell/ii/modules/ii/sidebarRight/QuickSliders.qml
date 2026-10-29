@@ -171,7 +171,7 @@ Rectangle {
                 onPressedChanged: {
                     if (!pressed) {
                         const speed = Math.round(value * 100);
-                        Quickshell.execDetached(["sh", "-c", `echo '2312' | sudo -S /home/gmh/.config/quickshell/ii/scripts/hyprland/fan_control.py set cpu ${speed}`]);
+                        Quickshell.execDetached(["sh", "-c", `sudo -n /usr/local/lib/fan-control/fan_control.py set cpu ${speed}`]);
                     }
                 }
             }
@@ -193,7 +193,7 @@ Rectangle {
                 onPressedChanged: {
                     if (!pressed) {
                         const speed = Math.round(value * 100);
-                        Quickshell.execDetached(["sh", "-c", `echo '2312' | sudo -S /home/gmh/.config/quickshell/ii/scripts/hyprland/fan_control.py set gpu ${speed}`]);
+                        Quickshell.execDetached(["sh", "-c", `sudo -n /usr/local/lib/fan-control/fan_control.py set gpu ${speed}`]);
                     }
                 }
             }

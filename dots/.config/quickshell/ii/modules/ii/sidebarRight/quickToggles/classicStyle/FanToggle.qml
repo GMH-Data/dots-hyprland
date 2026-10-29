@@ -48,12 +48,12 @@ QuickToggleButton {
     onClicked: {
         if (isManual) {
             // Turn both to Auto
-            Quickshell.execDetached(["sh", "-c", "echo '2312' | sudo -S /home/gmh/.config/quickshell/ii/scripts/hyprland/fan_control.py set both auto"]);
+            Quickshell.execDetached(["sh", "-c", "sudo -n /usr/local/lib/fan-control/fan_control.py set both auto"]);
             root.cpuAuto = true;
             root.gpuAuto = true;
         } else {
             // Turn both to 80% manual speed
-            Quickshell.execDetached(["sh", "-c", "echo '2312' | sudo -S /home/gmh/.config/quickshell/ii/scripts/hyprland/fan_control.py set both 80"]);
+            Quickshell.execDetached(["sh", "-c", "sudo -n /usr/local/lib/fan-control/fan_control.py set both 80"]);
             root.cpuAuto = false;
             root.gpuAuto = false;
         }
